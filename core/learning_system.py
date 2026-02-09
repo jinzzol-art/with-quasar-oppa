@@ -410,19 +410,22 @@ class PatternBasedExtractor:
         # 문자열로 변환
         str_value = str(raw_value).strip() if raw_value is not None else ""
         
-        # True 값 체크
-        for true_val in pattern.true_values:
-            if true_val.lower() == str_value.lower():
-                return True, "high"
-            if true_val.lower() in str_value.lower():
-                return True, "medium"
-        
-        # False 값 체크
+        # 1단계: 정확 매칭 우선 (True/False 모두)
         for false_val in pattern.false_values:
             if false_val.lower() == str_value.lower():
                 return False, "high"
+        for true_val in pattern.true_values:
+            if true_val.lower() == str_value.lower():
+                return True, "high"
+        
+        # 2단계: 부분 매칭 (긴 패턴 우선 → "미적용"이 "적용"보다 먼저 매칭)
+        # False를 먼저 검사 (부정 표현이 긍정 표현을 포함하는 경우 방지)
+        for false_val in sorted(pattern.false_values, key=len, reverse=True):
             if false_val.lower() in str_value.lower():
                 return False, "medium"
+        for true_val in sorted(pattern.true_values, key=len, reverse=True):
+            if true_val.lower() in str_value.lower():
+                return True, "medium"
         
         # Null 값 체크
         for null_val in pattern.null_values:
