@@ -39,20 +39,19 @@ def test_announcement_date_parsing():
 # 법인/개인 검증 로직 테스트
 def test_corporate_validation():
     """법인 검증 로직 테스트"""
-    from core.enhanced_validation_engine import EnhancedValidationEngine
-    from core.data_models import VerificationResult, CorporateDocuments, DocumentBase
+    from core.enhanced_validation_engine import EnhancedValidator
+    from core.data_models import PublicHousingReviewResult
     
     print("=" * 60)
     print("테스트 2: 법인/개인 구분 검증")
     print("=" * 60)
     
-    # 공고일 설정
-    announcement_date = date(2025, 7, 4)
-    engine = EnhancedValidationEngine(announcement_date)
+    # 공고일 설정 (문자열 형식)
+    engine = EnhancedValidator("2025-07-04")
     
     # 테스트 케이스 1: 개인 소유자
     print("케이스 1: 개인 소유자")
-    result_individual = VerificationResult()
+    result_individual = PublicHousingReviewResult(review_date="2025-02-09")
     result_individual.housing_sale_application.exists = True
     result_individual.corporate_documents.is_corporation = False
     result_individual.owner_identity.seal_certificate.exists = False
@@ -70,7 +69,7 @@ def test_corporate_validation():
     
     # 테스트 케이스 2: 법인 소유자
     print("케이스 2: 법인 소유자")
-    result_corporate = VerificationResult()
+    result_corporate = PublicHousingReviewResult(review_date="2025-02-09")
     result_corporate.housing_sale_application.exists = True
     result_corporate.corporate_documents.is_corporation = True
     result_corporate.corporate_documents.corporate_seal_certificate.exists = True
@@ -100,15 +99,14 @@ def test_corporate_validation():
 # 날짜 유효성 검증 테스트
 def test_date_validity():
     """작성일자 유효성 검증 테스트"""
-    from core.enhanced_validation_engine import EnhancedValidationEngine
+    from core.enhanced_validation_engine import EnhancedValidator
     
     print("=" * 60)
     print("테스트 3: 작성일자 유효성 검증")
     print("=" * 60)
     
-    # 공고일: 2025-07-04
-    announcement_date = date(2025, 7, 4)
-    engine = EnhancedValidationEngine(announcement_date)
+    # 공고일: 2025-07-04 (문자열 형식)
+    engine = EnhancedValidator("2025-07-04")
     
     test_cases = [
         ("2025-07-05", True, "공고일 이후"),
